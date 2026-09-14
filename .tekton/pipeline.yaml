@@ -1,0 +1,13 @@
+apiVersion: tekton.dev/v1beta1
+kind: Pipeline
+metadata:
+  name: coursera-project-pipeline
+spec:
+  tasks:
+    - name: build
+      taskSpec:
+        steps:
+          - name: echo
+            image: alpine:3.19
+            script: |
+              echo "Build step placeholder"
