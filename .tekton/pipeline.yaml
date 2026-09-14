@@ -1,13 +1,39 @@
 apiVersion: tekton.dev/v1beta1
-kind: Pipeline
+kind: Task
 metadata:
-  name: coursera-project-pipeline
+  name: cleanup
 spec:
-  tasks:
-    - name: build
-      taskSpec:
-        steps:
-          - name: echo
-            image: alpine:3.19
-            script: |
-              echo "Build step placeholder"
+  steps:
+    - name: cleanup
+      image: alpine:3.19
+      script: |
+        #!/bin/sh
+        echo "Cleaning up workspace..."
+        rm -rf /workspace/source/.pytest_cache
+        rm -rf /workspace/source/__pycache__
+        echo "Cleanup completed."
+
+---
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: run-tests
+spec:
+  workspaces:
+    - name: source
+  steps:
+    - name: install-dependencies
+      image: python:3.11
+      workingDir: /workspace/source
+      script: |
+        #!/bin/bash
+        pip install --upgrade pip
+        pip install nose
+
+    - name: run-nose-tests
+      image: python:3.11
+      workingDir: /workspace/source
+      script: |
+        #!/bin/bash
+        echo "Running unit tests..."
+        nosetests
